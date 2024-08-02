@@ -74,8 +74,8 @@
       <!-- Activity 10: Iterate through the storeTypes array and display the store type and the number of stores that use that type. -->
       <!-- TODO: CODE TO RENDER LIST OF STORE TYPES HERE -->
       <ul>
-        <li v-for="type in bookstores.storeTypes" :key="type.type">
-          {{ type.type }}: {{ type.stores }}
+        <li v-for="(type, number) in bookstores.storeTypes" :key="type">
+          {{ number }}: {{ type }}
         </li>
       </ul>
 
@@ -83,12 +83,22 @@
       <p>Opening Hours:</p>
       <!-- Activity 11: Iterate through the openingHours object and display the day of the week and the opening and closing times. -->
       <!-- TODO: CODE TO RENDER LIST OF OPENING HOURS HERE -->
+      <ul>
+        <li v-for="(hours, day) in bookstores.openingHours" :key="day">
+          {{ day }}: {{ hours.open }} - {{ hours.close }}
+        </li>
+      </ul>
 
       <h3>Working with Arrays in Objects</h3>
       <!-- Activity 12: Get the top sellers from the bookstores object. -->
       <!-- TODO: CODE TO GET TOP SELLERS HERE -->
       <p>We operate in:</p>
       <p>Our #1 seller:</p>
+      <ul>
+        <li v-for="seller in bookstores.topSellers" :key="seller">
+          {{ seller }}
+        </li>
+      </ul>
     </section>
 
     <section class="lab-section">
@@ -97,13 +107,16 @@
       <!-- Activity 13: Toggle the message visibility when the button is clicked. -->
       <!-- TODO: CODE TO TOGGLE MESSAGE VISIBILITY HERE. Hint: Use the v-if directive. -->
       <button @click="showMessage = !showMessage">Toggle Message</button>
-      <p class="message success">✨ You're a Vue superstar! ✨</p>
-      <p>Click the button to see a message.</p>
+      <p v-if="showMessage" class="message success">✨ You're a Vue superstar! ✨</p>
+      <p v-else class="message">Click the button to see a message.</p>
     </section>
 
     <section class="lab-section">
       <h2>Attribute, Class and Style Binding with <code>v-bind</code></h2>
       <p>Highlighting Specific Authors:</p>
+      <li class="highlight">
+        {{ orwell.name }}
+      </li>
     </section>
   </div>
 </template>
