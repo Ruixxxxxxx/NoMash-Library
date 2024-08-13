@@ -1,9 +1,11 @@
 <script setup>
-import JSON from './components/JSON.vue'
+//import JSON from './components/JSON.vue'
+import LoginForm from './components/LoginForm.vue'
 </script>
 
 <template>
-  <main>
+  <!-- <main>
     <JSON />
-  </main>
+  </main> -->
+  <LoginForm />
 </template>
