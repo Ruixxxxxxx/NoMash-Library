@@ -7,7 +7,15 @@
           <div class="row mb-3">
             <div class="col-12 col-md-6">
               <label for="username" class="form-label">Username</label>
-              <input type="text" class="form-control" id="username" v-model="formData.username" />
+              <input
+                type="text"
+                class="form-control"
+                id="username"
+                @blur="() => validateName(true)"
+                @input="() => validateName(false)"
+                v-model="formData.username"
+              />
+              <div v-if="errors.username" class="text-danger">{{ errors.username }}</div>
             </div>
             <div class="col-12 col-md-6">
               <label for="password" class="form-label">Password</label>
@@ -15,8 +23,11 @@
                 type="password"
                 class="form-control"
                 id="password"
+                @blur="() => validatePassword(true)"
+                @input="() => validatePassword(false)"
                 v-model="formData.password"
               />
+              <div v-if="errors.password" class="text-danger">{{ errors.password }}</div>
             </div>
           </div>
           <div class="row mb-3">
@@ -38,6 +49,7 @@
                 <option value="female">Female</option>
                 <option value="other">Other</option>
               </select>
+              <div v-if="errors.gender" class="text-danger">{{ errors.gender }}</div>
             </div>
           </div>
           <div class="row mb-3">
@@ -46,8 +58,11 @@
               class="form-control"
               id="reason"
               rows="3"
+              @blur="() => validateReason(true)"
+              @input="() => validateReason(false)"
               v-model="formData.reason"
             ></textarea>
+            <div v-if="errors.reason" class="text-danger">{{ errors.reason }}</div>
           </div>
           <div class="text-center">
             <button type="submit" class="btn btn-primary me-2">Submit</button>
@@ -58,31 +73,28 @@
     </div>
   </div>
 
-  <div class="row mt-5" v-if="submittedCards.length">
-    <div class="d-flex flex-wrap justify-content-start">
-      <div
-        v-for="(card, index) in submittedCards"
-        :key="index"
-        class="card m-2"
-        style="width: 18rem"
-      >
-        <div class="card-header">User Information</div>
-        <ul class="list-group list-group-flush">
-          <li class="list-group-item">Username: {{ card.username }}</li>
-          <li class="list-group-item">Password: {{ card.password }}</li>
-          <li class="list-group-item">
-            Australian Resident: {{ card.isAustralian ? 'Yes' : 'No' }}
-          </li>
-          <li class="list-group-item">Gender: {{ card.gender }}</li>
-          <li class="list-group-item">Reason: {{ card.reason }}</li>
-        </ul>
-      </div>
-    </div>
+  <div class="row mt-5">
+    <DataTable :value="submittedCards" table-style="min-width: 50rem">
+      <Column field="username" header="Username"></Column>
+      <Column field="password" header="Password"></Column>
+      <Column field="isAustralian" header="Australian Resident" :body="formatAustralian"></Column>
+      <Column field="gender" header="Gender"></Column>
+      <Column field="reason" header="Reason"></Column>
+    </DataTable>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+
+const formatAustralian = (rowData) => {
+  console.log('isAustralian type:', typeof rowData.isAustralian)
+  console.log('isAustralian value:', rowData.isAustralian)
+  return rowData.isAustralian ? 'Yes' : 'No'
+}
 
 const formData = ref({
   username: '',
@@ -95,10 +107,21 @@ const formData = ref({
 const submittedCards = ref([])
 
 const submitForm = () => {
-  submittedCards.value.push({
-    ...formData.value
-  })
-  clearForm()
+  validateName(true)
+  validatePassword(true)
+  validateResident(true)
+  validateGender(true)
+  validateReason(true)
+  if (
+    !errors.value.username &&
+    !errors.value.password &&
+    !errors.value.resident &&
+    !errors.value.gender &&
+    !errors.value.reason
+  ) {
+    submittedCards.value.push({ ...formData.value })
+    clearForm()
+  }
 }
 
 const clearForm = () => {
@@ -106,7 +129,66 @@ const clearForm = () => {
   formData.value.password = ''
   formData.value.isAustralian = false
   formData.value.reason = ''
-  formData.value
+  formData.value.gender = ''
+}
+
+const errors = ref({
+  username: null,
+  password: null,
+  resident: null,
+  gender: null,
+  reason: null
+})
+
+const validateName = (blur) => {
+  if (formData.value.username.length < 3) {
+    if (blur) errors.value.username = 'Name must be at least 3 characters'
+  } else {
+    errors.value.username = null
+  }
+}
+
+const validatePassword = (blur) => {
+  const password = formData.value.password
+  const minLength = 8
+  const hasUppercase = /[A-Z]/.test(password)
+  const hasLowercase = /[a-z]/.test(password)
+  const hasNumber = /[0-9]/.test(password)
+  const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password)
+
+  if (password.length < minLength) {
+    if (blur) errors.value.password = `Password must be at least ${minLength} characters long.`
+  } else if (!hasUppercase) {
+    if (blur) errors.value.password = 'Password must contain at least one uppercase letter.'
+  } else if (!hasLowercase) {
+    if (blur) errors.value.password = 'Password must contain at least one lowercase letter.'
+  } else if (!hasNumber) {
+    if (blur) errors.value.password = 'Password must contain at least one number.'
+  } else if (!hasSpecialChar) {
+    if (blur) errors.value.password = 'Password must contain at least one special character.'
+  } else {
+    errors.value.password = null
+  }
+}
+
+const validateResident = () => {
+  errors.value.resident = null
+}
+
+const validateGender = () => {
+  if (formData.value.gender === '') {
+    errors.value.gender = 'Please select a gender'
+  } else {
+    errors.value.gender = null
+  }
+}
+
+const validateReason = (blur) => {
+  if (formData.value.reason.length < 3) {
+    if (blur) errors.value.reason = 'Reason must be at least 3 characters'
+  } else {
+    errors.value.reason = null
+  }
 }
 </script>
 
@@ -126,13 +208,53 @@ const clearForm = () => {
   padding: 10px;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 576px) {
   .form-control,
   .form-select {
-    font-size: 14px;
+    font-size: 10px;
   }
   .card {
     margin: 10px 5px;
+  }
+}
+
+@media (min-width: 768px) {
+  .form-control,
+  .form-select {
+    font-size: 10px;
+  }
+  .card {
+    margin: 10px 5px;
+  }
+}
+
+@media (min-width: 992px) {
+  .form-control,
+  .form-select {
+    font-size: 10px;
+  }
+  .card {
+    margin: 10px 5px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .form-control,
+  .form-select {
+    font-size: 15px;
+  }
+  .card {
+    margin: 15px 5px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .form-control,
+  .form-select {
+    font-size: 20px;
+  }
+  .card {
+    margin: 20px 15px;
   }
 }
 </style>
