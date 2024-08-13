@@ -69,18 +69,22 @@
             <button type="button" class="btn btn-secondary" @click="clearForm">Clear</button>
           </div>
         </form>
+
+        <div class="row mt-5">
+          <DataTable :value="submittedCards" table-style="min-width: 50rem">
+            <Column field="username" header="Username"></Column>
+            <Column field="password" header="Password"></Column>
+            <Column
+              field="isAustralian"
+              header="Australian Resident"
+              :body="formatAustralian"
+            ></Column>
+            <Column field="gender" header="Gender"></Column>
+            <Column field="reason" header="Reason"></Column>
+          </DataTable>
+        </div>
       </div>
     </div>
-  </div>
-
-  <div class="row mt-5">
-    <DataTable :value="submittedCards" table-style="min-width: 50rem">
-      <Column field="username" header="Username"></Column>
-      <Column field="password" header="Password"></Column>
-      <Column field="isAustralian" header="Australian Resident" :body="formatAustralian"></Column>
-      <Column field="gender" header="Gender"></Column>
-      <Column field="reason" header="Reason"></Column>
-    </DataTable>
   </div>
 </template>
 
@@ -89,12 +93,6 @@ import { ref } from 'vue'
 
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-
-const formatAustralian = (rowData) => {
-  console.log('isAustralian type:', typeof rowData.isAustralian)
-  console.log('isAustralian value:', rowData.isAustralian)
-  return rowData.isAustralian ? 'Yes' : 'No'
-}
 
 const formData = ref({
   username: '',
@@ -211,7 +209,7 @@ const validateReason = (blur) => {
 @media (min-width: 576px) {
   .form-control,
   .form-select {
-    font-size: 10px;
+    font-size: 1px;
   }
   .card {
     margin: 10px 5px;
