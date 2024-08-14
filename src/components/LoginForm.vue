@@ -140,7 +140,13 @@ const errors = ref({
 
 const validateName = (blur) => {
   if (formData.value.username.length < 3) {
-    if (blur) errors.value.username = 'Name must be at least 3 characters'
+    if (blur) {
+      errors.value.username = 'Name must be at least 3 characters'
+    }
+  } else if (formData.value.username.length > 15) {
+    if (blur) {
+      errors.value.username = 'Name must be less than 15 characters'
+    }
   } else {
     errors.value.username = null
   }
@@ -185,7 +191,9 @@ const validateReason = (blur) => {
   if (formData.value.reason.length < 3) {
     if (blur) errors.value.reason = 'Reason must be at least 3 characters'
   } else {
-    errors.value.reason = null
+    if (formData.value.reason.length > 50) {
+      if (blur) errors.value.reason = 'Reason must be less than 50 characters'
+    } else errors.value.reason = null
   }
 }
 </script>
